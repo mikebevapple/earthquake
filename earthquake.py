@@ -1,23 +1,23 @@
 import csv
 
 def readCsvIntoDictionary():
-    csv_data = {}
-    location_earthquake_count = {}
-    highest_earthquake_count = 0
-    highest_earthquake_location = ()
-    with open('./data/1.0_month.csv') as earthquake_data:
-        csv_reader = csv.DictReader(earthquake_data)
-        for row in csv_reader:
+    csvData = {}
+    numberOfEarthquakesByLocation = {}
+    highestEarthquakeCount = 0
+    locationWithMostEarthquakes = ()
+    with open('./data/1.0_month.csv') as earthquakeData:
+        csvReader = csv.DictReader(earthquakeData)
+        for row in csvReader:
             location = (row["latitude"], row["longitude"])
-            previous_earthquake_count_for_location = 0
-            if location in location_earthquake_count :
-                previous_earthquake_count_for_location = location_earthquake_count.get(location)
-            new_earthquake_count_for_location = previous_earthquake_count_for_location + 1
-            location_earthquake_count[location] = previous_earthquake_count_for_location
-            if highest_earthquake_count < new_earthquake_count_for_location :
-                highest_earthquake_count = new_earthquake_count_for_location
-                highest_earthquake_location = location
-        print('Location with most earthquakes = {},{} ({})'.format(highest_earthquake_location[0],highest_earthquake_location[1],highest_earthquake_count))
+            previousEarthquakeCountForLocation = 0
+            if location in numberOfEarthquakesByLocation :
+                previousEarthquakeCountForLocation = numberOfEarthquakesByLocation.get(location)
+            newEarthquakeCountForLocation = previousEarthquakeCountForLocation + 1
+            numberOfEarthquakesByLocation[location] = previousEarthquakeCountForLocation
+            if highestEarthquakeCount < newEarthquakeCountForLocation :
+                highestEarthquakeCount = newEarthquakeCountForLocation
+                locationWithMostEarthquakes = location
+        print('Location with most earthquakes = {},{} ({})'.format(locationWithMostEarthquakes[0],locationWithMostEarthquakes[1],highestEarthquakeCount))
 
 
 readCsvIntoDictionary()
