@@ -1,20 +1,29 @@
 import csv
 
-def readCsvIntoDictionary():
-    csvData = {}
-    numberOfEarthquakesByLocation = {}
-    highestEarthquakeCount = 0
-    locationWithMostEarthquakes = ()
-    multipleLocationsTiedForMostEarthquakes = False
-    with open('./data/1.0_month.csv') as earthquakeData:
-        csvReader = csv.DictReader(earthquakeData)
-        for row in csvReader:
+class earthquakeCalculator:
+    def __init__(self):
+        self.numberOfEarthquakesByLocation = {}
+        self.csvDataRows = []
+ 
+    def readCsv(self, pathToCsv):
+        with open(pathToCsv) as earthquakeData:
+            csvReader = csv.DictReader(earthquakeData)
+            for row in csvReader:
+                self.csvDataRows.append(row)
+        print('Read {} rows from csv'.format(len(self.csvDataRows)))
+
+    def computeEarthquakeCounts(self):
+        highestEarthquakeCount = 0
+        locationWithMostEarthquakes = ()
+        multipleLocationsTiedForMostEarthquakes = False
+
+        for row in self.csvDataRows:
             locationSource = row["locationSource"]
             previousEarthquakeCountForLocation = 0
-            if locationSource in numberOfEarthquakesByLocation :
-                previousEarthquakeCountForLocation = numberOfEarthquakesByLocation.get(locationSource)
+            if locationSource in self.numberOfEarthquakesByLocation :
+                previousEarthquakeCountForLocation = self.numberOfEarthquakesByLocation.get(locationSource)
             newEarthquakeCountForLocation = previousEarthquakeCountForLocation + 1
-            numberOfEarthquakesByLocation[locationSource] = newEarthquakeCountForLocation
+            self.numberOfEarthquakesByLocation[locationSource] = newEarthquakeCountForLocation
             if highestEarthquakeCount < newEarthquakeCountForLocation :
                 highestEarthquakeCount = newEarthquakeCountForLocation
                 locationWithMostEarthquakes = locationSource
@@ -26,4 +35,6 @@ def readCsvIntoDictionary():
         if multipleLocationsTiedForMostEarthquakes :
             print("*More than one location tied for most earthquakes")
 
-readCsvIntoDictionary()
+obj = earthquakeCalculator()
+obj.readCsv('./data/1.0_month.csv')
+obj.computeEarthquakeCounts()
