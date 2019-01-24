@@ -1,6 +1,6 @@
 # earthquake
 
-This is Mike Beverley's submission for the Earthquake Programming Challenge, written in Python (3.7).
+This is my submission for the Earthquake Programming Challenge, written in Python (3.7).
 
 The code lives within several modules:
 * earthquake.py is the "start here" script module that shows how to import and run the others
