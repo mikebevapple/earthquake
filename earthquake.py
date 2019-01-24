@@ -3,12 +3,13 @@ from dateutil.parser import *
 from datetime import datetime
 from pytz import timezone
 import pytz
+import time
 
-class earthquakeCalculator:
-    def __init__(self,path):
+class csvImporter:
+    def __init__(self, path):
         self.csvDataRows = []
         self.readCsv(path)
- 
+
     def readCsv(self, pathToCsv):
         with open(pathToCsv) as earthquakeData:
             csvReader = csv.DictReader(earthquakeData)
@@ -16,6 +17,10 @@ class earthquakeCalculator:
                 self.csvDataRows.append(row)
         print('Read {} rows from csv'.format(len(self.csvDataRows)))
         print('-----------')
+
+class earthquakeCalculator:
+    def __init__(self,dataRows):
+        self.csvDataRows = dataRows
 
     def computeCountsByLocationSource(self):
         numberOfEarthquakesByLocation = {}
@@ -85,9 +90,51 @@ class earthquakeCalculator:
             print('{} total earthquakes = {}'.format(date, numberOfEarthquakes))
         print('-----------')
 
-obj = earthquakeCalculator('./data/1.0_month.csv')
-obj.computeCountsByLocationSource()
-obj.computeAverageMagnitudeByLocationSource()
-obj.generateDailyHistogramData()
+class earthquakeDataProcessor:
+    def __init__(self):
+        self.numberAndAverageMagnitudeOfEarthquakesByLocation = {}
+
+    def processCsvRow(self, csvRow):
+        locationSource = csvRow['locationSource']
+        rowMagnitude = float(csvRow['mag'])
+        previousEarthquakeCountForLocation = 0
+        previousAverageMagnitudeForLocation = 0
+        if locationSource in self.numberAndAverageMagnitudeOfEarthquakesByLocation :
+            existingRecordForLocation = self.numberAndAverageMagnitudeOfEarthquakesByLocation.get(locationSource)
+            previousEarthquakeCountForLocation = existingRecordForLocation[0]
+            previousAverageMagnitudeForLocation = existingRecordForLocation[1]
+        newEarthquakeCountForLocation = previousEarthquakeCountForLocation + 1
+        newAverageMagnitudeForLocation = previousAverageMagnitudeForLocation + (rowMagnitude - previousAverageMagnitudeForLocation) / newEarthquakeCountForLocation        
+        self.numberAndAverageMagnitudeOfEarthquakesByLocation[locationSource] = (newEarthquakeCountForLocation,newAverageMagnitudeForLocation)
+        print('Processed row: location {}, magnitude {}'.format(locationSource, rowMagnitude))
+
+    def printAverageMagnitudesByLocationSource(self):
+        for locationKey, locationValue in self.numberAndAverageMagnitudeOfEarthquakesByLocation.items():
+            print('{} average magnitude = {}'.format(locationKey, locationValue[1]))
+        print('-----------')
+
+class earthquakeDataStreamSimulator:
+    def __init__(self, dataProcessor, dataRows):
+        self.dataProcessor = dataProcessor
+        self.dataRows = dataRows
+
+    def startStreamingData(self):
+        for x in range(5):
+            row = self.dataRows[x]
+            self.dataProcessor.processCsvRow(row)
+            time.sleep(2)
+
+dataImporter = csvImporter('./data/1.0_month.csv')
+csvData = dataImporter.csvDataRows
+
+calculator = earthquakeCalculator(csvData)
+calculator.computeCountsByLocationSource()
+calculator.computeAverageMagnitudeByLocationSource()
+calculator.generateDailyHistogramData()
 #NOTE: GenerateDailyHistogramData can take an optional timezone argument, as below:
-#obj.generateDailyHistogramData('US/Pacific')
+#calculator.generateDailyHistogramData('US/Pacific')
+
+processor = earthquakeDataProcessor()
+simulator = earthquakeDataStreamSimulator(processor, csvData)
+simulator.startStreamingData()
+processor.printAverageMagnitudesByLocationSource()
