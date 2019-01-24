@@ -1,4 +1,8 @@
 import csv
+from dateutil.parser import *
+from datetime import datetime
+from pytz import timezone
+import pytz
 
 class earthquakeCalculator:
     def __init__(self,path):
@@ -11,6 +15,7 @@ class earthquakeCalculator:
             for row in csvReader:
                 self.csvDataRows.append(row)
         print('Read {} rows from csv'.format(len(self.csvDataRows)))
+        print('-----------')
 
     def computeCountsByLocationSource(self):
         numberOfEarthquakesByLocation = {}
@@ -35,6 +40,7 @@ class earthquakeCalculator:
         print('Location with most earthquakes ({}) = {}'.format(highestEarthquakeCount,locationWithMostEarthquakes))
         if multipleLocationsTiedForMostEarthquakes :
             print("*More than one location tied for most earthquakes")
+        print('-----------')
 
     def computeAverageMagnitudeByLocationSource(self):
         numberAndTotalMagnitudeOfEarthquakesByLocation = {}
@@ -52,9 +58,36 @@ class earthquakeCalculator:
             newTotalMagnitudeForLocation = previousTotalMagnitudeForLocation + rowMagnitude
             numberAndTotalMagnitudeOfEarthquakesByLocation[locationSource] = (newEarthquakeCountForLocation,newTotalMagnitudeForLocation)
 
-        for locationEntry, locationValue in numberAndTotalMagnitudeOfEarthquakesByLocation.items():
-            print('{} average magnitude = {}'.format(locationEntry, locationValue[1]/locationValue[0]))
+        for locationKey, locationValue in numberAndTotalMagnitudeOfEarthquakesByLocation.items():
+            print('{} average magnitude = {}'.format(locationKey, locationValue[1]/locationValue[0]))
+        print('-----------')
+
+    def generateDailyHistogramData(self, timezoneString='UTC'):
+        numberOfEarthquakesPerDay = {}
+        timeZoneToUse = pytz.utc
+
+        try:
+            timeZoneToUse = timezone(timezoneString)
+        except UnknownTimeZoneError:
+            print('Unsupported Timezone string')
+
+        for row in self.csvDataRows:
+            datetime = parse(row['time'])
+            localizedDateTime = datetime.astimezone(timeZoneToUse)
+            timeZoneDate = localizedDateTime.date()
+            previousEarthquakeCountForDate = 0
+            if timeZoneDate in numberOfEarthquakesPerDay :
+                previousEarthquakeCountForDate = numberOfEarthquakesPerDay.get(timeZoneDate)
+            newEarthquakeCountForDate = previousEarthquakeCountForDate + 1
+            numberOfEarthquakesPerDay[timeZoneDate] = newEarthquakeCountForDate
+
+        for date, numberOfEarthquakes in numberOfEarthquakesPerDay.items():
+            print('{} total earthquakes = {}'.format(date, numberOfEarthquakes))
+        print('-----------')
 
 obj = earthquakeCalculator('./data/1.0_month.csv')
 obj.computeCountsByLocationSource()
 obj.computeAverageMagnitudeByLocationSource()
+obj.generateDailyHistogramData()
+#NOTE: GenerateDailyHistogramData can take an optional timezone argument, as below:
+#obj.generateDailyHistogramData('US/Pacific')
