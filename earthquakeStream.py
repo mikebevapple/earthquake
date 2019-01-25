@@ -4,6 +4,10 @@ class earthquakeDataProcessor:
     def __init__(self):
         self.numberAndAverageMagnitudeOfEarthquakesByLocation = {}
 
+    @staticmethod
+    def calculateAverage(previousAverage,newValue,newCount):
+        return previousAverage + (newValue - previousAverage) / newCount
+
     def processCsvRow(self, csvRow):
         if csvRow == None:
             raise ValueError('ERROR: csvRow is required')
@@ -16,7 +20,7 @@ class earthquakeDataProcessor:
             previousEarthquakeCountForLocation = existingRecordForLocation[0]
             previousAverageMagnitudeForLocation = existingRecordForLocation[1]
         newEarthquakeCountForLocation = previousEarthquakeCountForLocation + 1
-        newAverageMagnitudeForLocation = previousAverageMagnitudeForLocation + (rowMagnitude - previousAverageMagnitudeForLocation) / newEarthquakeCountForLocation        
+        newAverageMagnitudeForLocation = earthquakeDataProcessor.calculateAverage(previousAverageMagnitudeForLocation,rowMagnitude,newEarthquakeCountForLocation)
         self.numberAndAverageMagnitudeOfEarthquakesByLocation[locationSource] = (newEarthquakeCountForLocation,newAverageMagnitudeForLocation)
         print('Processed row: location {}, magnitude {}'.format(locationSource, rowMagnitude))
 

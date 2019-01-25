@@ -1,6 +1,7 @@
 import earthquakeStream
 import earthquakeStatic
 import earthquakeDataImporter
+import unittest
 
 dataImporter = earthquakeDataImporter.csvImporter('./data/1.0_month.csv')
 csvData = dataImporter.csvDataRows
@@ -16,3 +17,7 @@ processor = earthquakeStream.earthquakeDataProcessor()
 simulator = earthquakeStream.earthquakeDataStreamSimulator(processor, csvData)
 simulator.startStreamingData()
 processor.printAverageMagnitudesByLocationSource()
+
+class streamingAverageTestCase(unittest.TestCase):
+    def testStreamingAverageCalculation(self):
+        self.assertEqual(earthquakeStream.earthquakeDataProcessor.calculateAverage(3,7.0,4), 4.0)
