@@ -5,6 +5,8 @@ class earthquakeDataProcessor:
         self.numberAndAverageMagnitudeOfEarthquakesByLocation = {}
 
     def processCsvRow(self, csvRow):
+        if csvRow == None:
+            raise ValueError('ERROR: csvRow is required')
         locationSource = csvRow['locationSource']
         rowMagnitude = float(csvRow['mag'])
         previousEarthquakeCountForLocation = 0
@@ -25,6 +27,10 @@ class earthquakeDataProcessor:
 
 class earthquakeDataStreamSimulator:
     def __init__(self, dataProcessor, dataRows):
+        if dataProcessor == None:
+            raise ValueError('ERROR: dataProcessor is required')
+        if dataRows == None:
+            raise ValueError('ERROR: dataRows is required')
         self.dataProcessor = dataProcessor
         self.dataRows = dataRows
 

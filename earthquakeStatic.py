@@ -5,6 +5,8 @@ import pytz
 
 class earthquakeCalculator:
     def __init__(self,dataRows):
+        if dataRows == None:
+            raise ValueError('ERROR: dataRows is required')
         self.csvDataRows = dataRows
 
     def computeCountsByLocationSource(self):
@@ -59,7 +61,7 @@ class earthquakeCalculator:
         try:
             timeZoneToUse = timezone(timezoneString)
         except UnknownTimeZoneError:
-            print('Unsupported Timezone string')
+            print('Unsupported Timezone string, using UTC')
 
         for row in self.csvDataRows:
             datetime = parse(row['time'])
